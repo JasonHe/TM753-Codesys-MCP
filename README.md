@@ -12,6 +12,7 @@ The `tm753-codesys-mcp` skill teaches Codex how to work with an INVT TM753 PLC
 project in a cautious, repeatable way:
 
 - inspect an existing Invtmatic/CODESYS project before changing it
+- find or set up Codesys-MCP on a new machine
 - read and edit POUs, GVLs, DUTs, device mappings, and project configuration
 - compile the project and inspect diagnostics
 - connect to a TM753 runtime over local Ethernet
@@ -28,12 +29,14 @@ On the machine where Codex will use this skill, you should already have:
 
 - INVT Invtmatic Studio installed
 - a compatible TM753 project or workspace
-- Codesys-MCP available and buildable/runnable
 - local Ethernet access to the PLC
 - the correct TM753 firmware, device descriptions, and libraries for the project
+- Node.js 18+ and Git if Codesys-MCP needs to be cloned or built
 
 The skill assumes Invtmatic Studio is already installed. It does not install
-Invtmatic, upgrade firmware, or reconfigure the PLC IP by itself.
+Invtmatic, upgrade firmware, or reconfigure the PLC IP by itself. It can,
+however, help locate an existing Codesys-MCP checkout or clone and build
+Codesys-MCP in a machine-appropriate workspace.
 
 ## Install
 
@@ -121,3 +124,5 @@ before assuming the Structured Text logic is wrong.
 This skill was created from a real TM753 bring-up session using local Ethernet,
 Invtmatic Studio V3.0.1.4, and Codesys-MCP. Local paths and addresses in
 `SKILL.md` are examples to verify on each machine, not universal constants.
+Codesys-MCP paths are intentionally discovered or created per machine rather
+than hard-coded into the skill.

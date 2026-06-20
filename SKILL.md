@@ -1,11 +1,11 @@
 ---
 name: tm753-codesys-mcp
-description: Operate INVT TM753 PLC projects through Invtmatic Studio/CODESYS and Codesys-MCP. Use when Codex needs to inspect, read, edit, compile, download, start/stop, monitor variables, or troubleshoot TM753 PLC programs on a machine where Invtmatic Studio is already installed, especially over local Ethernet with Codesys-MCP.
+description: Operate INVT TM753 PLC projects through Invtmatic Studio/CODESYS and Codesys-MCP, including finding or setting up Codesys-MCP when it is missing. Use when Codex needs to inspect, read, edit, compile, download, start/stop, monitor variables, or troubleshoot TM753 PLC programs on a machine where Invtmatic Studio is already installed, especially over local Ethernet with Codesys-MCP.
 ---
 
 # TM753 Codesys-MCP
 
-Use this skill to work on INVT TM753 PLC projects through Invtmatic Studio and Codesys-MCP. Assume Invtmatic Studio is already installed. Do not install Invtmatic, change the PLC IP, overwrite user logic, or download to the PLC unless the user asks for that action.
+Use this skill to work on INVT TM753 PLC projects through Invtmatic Studio and Codesys-MCP. Assume Invtmatic Studio is already installed, but do not assume Codesys-MCP is already present. Do not install Invtmatic, change the PLC IP, overwrite user logic, or download to the PLC unless the user asks for that action.
 
 ## Core Rules
 
@@ -27,8 +27,34 @@ Project workspace:    C:\Tools\INVT\projects
 Common PLC IP:        192.168.1.10
 Common local IP:      192.168.1.100/24
 Common credentials:   Administrator / Administrator
-Codesys-MCP repo:     C:\Users\T-Power\Documents\对话\_ext\Codesys-MCP
 ```
+
+## Codesys-MCP Setup
+
+Before starting Codesys-MCP, discover or prepare its actual local path. Never rely on a hard-coded user directory.
+
+1. Look for an existing Codesys-MCP checkout.
+
+   Search likely workspaces such as the current repo/workspace, the user's chosen tools directory, `%USERPROFILE%\Documents`, `%USERPROFILE%\source`, `%USERPROFILE%\dev`, and WSL-mounted equivalents. A valid checkout usually has `package.json` with `codesys-mcp-persistent` and `dist/bin.js` after build.
+
+2. If a checkout exists, verify it.
+
+   Run `npm install` if `node_modules` is missing, and `npm run build` if `dist/bin.js` is missing or stale. Require Node.js 18+.
+
+3. If no checkout exists, clone and build it.
+
+   Ask or infer a non-personal tools/workspace location for the current machine, then clone:
+
+   ```bash
+   git clone https://github.com/luke-harriman/Codesys-MCP.git Codesys-MCP
+   cd Codesys-MCP
+   npm install
+   npm run build
+   ```
+
+4. Use the discovered path for this session.
+
+   Start the server from that checkout's built `dist/bin.js`. Record the resolved path in the working notes for the current task, not in this skill.
 
 ## Workflow
 
@@ -36,27 +62,31 @@ Codesys-MCP repo:     C:\Users\T-Power\Documents\对话\_ext\Codesys-MCP
 
    Check the local Ethernet IP and `ping` the PLC. Check whether Invtmatic is already running. Avoid multiple Invtmatic instances opening the same project, because CODESYS locks the `.project`.
 
-2. Start Codesys-MCP with Invtmatic.
+2. Discover or prepare Codesys-MCP.
+
+   Follow [Codesys-MCP Setup](#codesys-mcp-setup). Confirm the resolved checkout path and that `dist/bin.js` exists before starting the MCP server.
+
+3. Start Codesys-MCP with Invtmatic.
 
    Use the built `dist/bin.js` from Codesys-MCP and pass `--codesys-path`, `--codesys-profile`, `--workspace`, `--mode persistent`, `--keep-alive`, and a long timeout. If `Select Profile` appears, click `Continue` for `Invtmatic Studio V3.0`.
 
-3. Open and inspect the project.
+4. Open and inspect the project.
 
    Use `open_project` with `filePath` when needed. Then read `codesys://project/status`, inspect the `TM753` device node, and inspect the target application/POU. Use read-only resources or tools before edits.
 
-4. Read code before writing.
+5. Read code before writing.
 
    Read the target `PLC_PRG` or user-specified POU/GVL/DUT. Understand current declarations, implementation, and library dependencies. Do not replace a whole program unless the user asked for a rewrite.
 
-5. Back up, edit, and save.
+6. Back up, edit, and save.
 
    Copy the project to a timestamped backup before edits. Use `set_pou_code` or the narrowest available MCP tool to update code. Save the project after a successful edit.
 
-6. Compile and inspect diagnostics.
+7. Compile and inspect diagnostics.
 
    Run `compile_project`. If the MCP response is too terse or mojibake appears, read `%TEMP%\codesys-mcp-compile-debug.txt`. Do not download when there are compile errors.
 
-7. Connect online.
+8. Connect online.
 
    Set credentials if the runtime requires them. Connect with the configured device address or let the project resolve the scanned `TM753-C` node. Confirm:
 
@@ -64,7 +94,7 @@ Codesys-MCP repo:     C:\Users\T-Power\Documents\对话\_ext\Codesys-MCP
    Logged In: True
    ```
 
-8. Download and run only when requested.
+9. Download and run only when requested.
 
    Prefer `online_change` when appropriate and safe; use `full` when the project/device mapping changed, the runtime rejects online change, or the user requests a clean download. Then start the application and confirm:
 
@@ -74,7 +104,7 @@ Codesys-MCP repo:     C:\Users\T-Power\Documents\对话\_ext\Codesys-MCP
    Logged In: True
    ```
 
-9. Verify behavior.
+10. Verify behavior.
 
    Read relevant live variables and, for physical behavior, ask the user to confirm the machine or PLC indicators. Internal variables changing is not enough proof for physical I/O.
 

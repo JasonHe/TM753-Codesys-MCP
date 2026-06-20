@@ -1,4 +1,4 @@
 interface:
   display_name: "TM753 Codesys-MCP"
   short_description: "Operate INVT TM753 via Codesys-MCP"
-  default_prompt: "Use $tm753-codesys-mcp to inspect, edit, compile, download, and verify an INVT TM753 PLC project."
+  default_prompt: "Use $tm753-codesys-mcp to prepare Codesys-MCP, then inspect, edit, compile, download, and verify an INVT TM753 PLC project."
